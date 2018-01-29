@@ -1,7 +1,7 @@
 # labradoodle-detector
 How to train your computer to detect adorable labradoodles!
 
-![Labradoodle]("image/labradoodle.jpg")
+![Labradoodle]("images/labradoodle.jpg")
 This code walks you gently through the process of taking an existing modern image classifier and re-purposing it as a labradoodle detector.  We'll show you just how far you can go with even a very small dataset.  No specialised hardware required - you can follow along entirely on your (Intel)-optimized CPU.
 
 ## Installing prerequisites

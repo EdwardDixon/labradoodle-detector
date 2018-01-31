@@ -31,8 +31,10 @@ def main():
 
     model.compile(loss = "binary_crossentropy", optimizer="adam", metrics=['accuracy'])
 
-    model_checkpoint = ModelCheckpoint("../models/labradoodle-detector.mdl", save_best_only=True,
-                                                       monitor='accuracy')
+    model_checkpoint = ModelCheckpoint("../models/labradoodle-detector.mdl",
+                                       save_best_only=True,
+                                        monitor='val_acc')
+
     datagen = ImageDataGenerator(rotation_range=40,
         width_shift_range=0.2,
         height_shift_range=0.2,

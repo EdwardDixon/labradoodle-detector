@@ -1,13 +1,17 @@
 import numpy as np
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
-from keras.layers import Dense, Flatten
+from keras.layers import Dense, Flatten, Dropout
+from keras.losses import binary_crossentropy
 from keras.applications import Xception
 from keras.callbacks import ModelCheckpoint
 
 import argparse
 
-
+def normalize_image(image):
+    image = image - 128
+    image = image / 128
+    return(image)
 
 def main():
     parser = argparse.ArgumentParser()
@@ -27,27 +31,34 @@ def main():
     model.add(imagenet_expert)
     model.add(Flatten())
     model.add(Dense(16, activation="relu"))
-    model.add(Dense(1, activation="relu"))
+    model.add(Dropout(0.5))
+    model.add(Dense(1, activation='sigmoid'))
 
-    model.compile(loss = "binary_crossentropy", optimizer="adam", metrics=['accuracy'])
+    model.compile(loss = binary_crossentropy, optimizer="adam", metrics=['accuracy'])
 
     model_checkpoint = ModelCheckpoint("../models/labradoodle-detector.mdl",
                                        save_best_only=True,
                                         monitor='val_acc')
 
-    datagen = ImageDataGenerator(rotation_range=40,
+    train_datagen = ImageDataGenerator(rotation_range=40,
         width_shift_range=0.2,
         height_shift_range=0.2,
-        rescale=1./255,
         shear_range=0.2,
         zoom_range=0.2,
         horizontal_flip=True,
         fill_mode='nearest')
 
-    model.fit_generator(datagen.flow_from_directory(args.train, target_size=input_dimensions[0:2], class_mode="binary"),
+    test_datagen = ImageDataGenerator()
+
+    model.fit_generator(train_datagen.flow_from_directory(directory=args.train,
+                                                          target_size=input_dimensions[0:2],
+                                                          batch_size=64,
+                                                          class_mode="binary"),
                         epochs=10,
                         steps_per_epoch=10,
-                        validation_data=datagen.flow_from_directory(directory=args.test, target_size=input_dimensions[0:2], class_mode="binary"),
+                        validation_data=test_datagen.flow_from_directory(directory=args.test,
+                                                                         target_size=input_dimensions[0:2],
+                                                                         class_mode="binary"),
                         validation_steps=10,
                         callbacks=[model_checkpoint])
 
